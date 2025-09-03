@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ titulo }} - Mi Papelería Online</title>
+</head>
+
+<body>
+    <h1>Bienvenido a tu perfil, {{ current_user.nombre }}</h1>
+
+    <p><strong>Correo electrónico:</strong> {{ current_user.email }}</p>
+    <p><strong>Rol:</strong> {{ current_user.rol }}</p>
+
+    <hr>
+
+    <h2>Información de contacto y envío</h2>
+    <p><strong>Teléfono:</strong> {{ current_user.telefono or 'No especificado' }}</p>
+    <p><strong>Dirección de envío:</strong> {{ current_user.direccion_envio or 'No especificada' }}</p>
+    <p><strong>Dirección de facturación:</strong> {{ current_user.direccion_facturacion or 'No especificada' }}</p>
+
+    {% if current_user.rol == 'admin' %}
+    <div style="margin-top: 20px;">
+        <h3>Tareas de Administrador</h3>
+        <a href="{{ url_for('admin.index') }}"
+            style="display: inline-block; padding: 10px 15px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px;">
+            Ir al Panel de Administración
+        </a>
+    </div>
+    {% endif %}
+
+    <p style="margin-top: 20px;"><a href="{{ url_for('inicio') }}">Volver al Inicio</a></p>
+    <p><a href="{{ url_for('logout') }}">Cerrar sesión</a></p>
+</body>
+
+</html>

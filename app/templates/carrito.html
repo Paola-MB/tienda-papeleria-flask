@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ titulo }}</title>
+</head>
+
+<body>
+    <h1>Tu Carrito de Compras</h1>
+
+    {% if detalles %}
+    <ul>
+        {% for detalle in detalles %}
+        <li>
+            {{ detalle.producto.nombre }} -
+            Cantidad: {{ detalle.cantidad }} -
+            Precio: ${{ '%.2f'|format(detalle.producto.precio_venta * detalle.cantidad) }}
+        </li>
+        {% endfor %}
+    </ul>
+    <h3>Total: ${{ '%.2f'|format(total) }}</h3>
+    {% else %}
+    <p>Tu carrito de compras está vacío.</p>
+    {% endif %}
+
+    <p><a href="{{ url_for('inicio') }}">Continuar comprando</a></p>
+</body>
+
+</html>

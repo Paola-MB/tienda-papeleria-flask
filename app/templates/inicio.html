@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ titulo }} - Tienda de Papelería</title>
+</head>
+
+<body>
+
+    <nav>
+        <ul>
+            <li><a href="{{ url_for('inicio') }}">Inicio</a></li>
+            {% if current_user.is_authenticated %}
+            <li><a href="{{ url_for('perfil') }}">Perfil</a></li>
+            <li><a href="{{ url_for('carrito') }}">Carrito de Compras</a></li>
+            <li><a href="{{ url_for('logout') }}">Cerrar Sesión</a></li>
+            {% else %}
+            <li><a href="{{ url_for('login') }}">Iniciar Sesión</a></li>
+            <li><a href="{{ url_for('registro') }}">Registrarse</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    {% for category, message in messages %}
+    <div class="alert alert-{{ category }}">
+        {{ message }}
+    </div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+    <h1>¡Bienvenido a tu tienda de papelería!</h1>
+
+    <hr>
+
+    <h2>Productos Disponibles</h2>
+
+    <div class="lista-productos">
+        {% if productos %}
+        {% for producto in productos %}
+        <div class="tarjeta-producto" style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;">
+            <h3>{{ producto.nombre }}</h3>
+            <p><strong>Descripción:</strong> {{ producto.descripcion }}</p>
+            <p><strong>Precio:</strong> ${{ '%.2f'|format(producto.precio_venta) }}</p>
+            <p><strong>Stock:</strong> {{ producto.stock }} unidades</p>
+
+            {% if current_user.is_authenticated %}
+            <form action="{{ url_for('anadir_al_carrito', producto_id=producto.id) }}" method="POST">
+                <label for="cantidad-{{ producto.id }}">Cantidad:</label>
+                <input type="number" id="cantidad-{{ producto.id }}" name="cantidad" value="1" min="1"
+                    max="{{ producto.stock }}">
+                <button type="submit">Añadir al Carrito</button>
+            </form>
+            {% else %}
+            <p><a href="{{ url_for('login') }}">Inicia sesión para comprar</a></p>
+            {% endif %}
+        </div>
+        {% endfor %}
+        {% else %}
+        <p>No hay productos disponibles en este momento.</p>
+        {% endif %}
+    </div>
+
+</body>
+
+</html>
