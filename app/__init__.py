@@ -5,6 +5,8 @@ from flask_login import LoginManager, current_user, UserMixin
 from flask_admin import Admin, AdminIndexView
 from flask_admin.contrib.sqla import ModelView
 from config import Config
+from flask_mail import Mail # Importa Flask-Mail
+
 
 # Inicialización de la aplicación Flask y sus extensiones
 app = Flask(__name__)
@@ -16,6 +18,7 @@ login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 login_manager.login_message_category = 'info'
 login_manager.login_message = "Por favor, inicia sesión para acceder a esta página."
+mail = Mail(app)
 
 # Crea una clase de vista de modelo personalizada para proteger las tablas
 class MyModelView(ModelView):

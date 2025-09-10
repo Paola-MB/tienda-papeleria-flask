@@ -2,15 +2,22 @@
 <html lang="es">
 
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-16">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ titulo }} - Mi Papelería Online</title>
 </head>
 
 <body>
     <h1>Bienvenido a tu perfil, {{ current_user.nombre }}</h1>
-
     <p><strong>Correo electrónico:</strong> {{ current_user.email }}</p>
+    <p>
+        <strong>Estado del correo:</strong>
+        {% if current_user.email_confirmado %}
+        <span style="color: green;">Confirmado ✅</span>
+        {% else %}
+        <span style="color: red;">No confirmado ❌</span>
+        {% endif %}
+    </p>
     <p><strong>Rol:</strong> {{ current_user.rol }}</p>
 
     <hr>
@@ -29,9 +36,6 @@
         </a>
     </div>
     {% endif %}
-
-    <p style="margin-top: 20px;"><a href="{{ url_for('inicio') }}">Volver al Inicio</a></p>
-    <p><a href="{{ url_for('logout') }}">Cerrar sesión</a></p>
 </body>
 
 </html>

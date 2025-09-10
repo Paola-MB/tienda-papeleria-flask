@@ -13,8 +13,10 @@ class Usuario(db.Model, UserMixin):
     telefono = db.Column(db.String(20))
     direccion_envio = db.Column(db.Text)
     direccion_facturacion = db.Column(db.Text)
-    rol = db.Column(db.String(50), default='cliente')
+    rol = db.Column(db.String(50), default='cliente', server_default='cliente')
     creado_en = db.Column(db.TIMESTAMP(timezone=True), default=datetime.now)
+    # Nuevo campo para la confirmación de email
+    email_confirmado = db.Column(db.Boolean, nullable=False, default=False)
 
     def __repr__(self):
         return f"Usuario('{self.nombre}', '{self.email}')"
@@ -124,3 +126,4 @@ class Descuento(db.Model):
     fecha_fin = db.Column(db.TIMESTAMP(timezone=True))
     usos_maximos = db.Column(db.Integer)
     usos_actuales = db.Column(db.Integer, default=0)
+   

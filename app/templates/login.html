@@ -5,34 +5,54 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ titulo }} - Mi Papelería Online</title>
+    <!-- Incluye Tailwind CSS desde CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
 </head>
 
-<body>
-    <h1>Iniciar sesión</h1>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+    <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-md">
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">Iniciar Sesión</h1>
 
-    {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-    {% for category, message in messages %}
-    <div class="alert alert-{{ category }}">
-        {{ message }}
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="mb-4">
+            {% for category, message in messages %}
+            <div class="alert {{ 'bg-red-100 border-l-4 border-red-500 text-red-700 p-4' if category == 'danger' else 'bg-green-100 border-l-4 border-green-500 text-green-700 p-4' }}"
+                role="alert">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="{{ url_for('login') }}" class="space-y-6">
+            <div>
+                <label for="email" class="block text-sm font-medium text-gray-700">Correo electrónico:</label>
+                <input type="email" id="email" name="email" required
+                    class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-300 ease-in-out">
+            </div>
+            <div>
+                <label for="password" class="block text-sm font-medium text-gray-700">Contraseña:</label>
+                <input type="password" id="password" name="password" required
+                    class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-300 ease-in-out">
+            </div>
+            <button type="submit"
+                class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-lg font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-300 ease-in-out">
+                Iniciar Sesión
+            </button>
+        </form>
+
+        <p class="mt-6 text-center text-sm text-gray-600">
+            ¿No tienes una cuenta? <a href="{{ url_for('registro') }}"
+                class="font-medium text-blue-600 hover:text-blue-500">Regístrate aquí</a>
+        </p>
     </div>
-    {% endfor %}
-    {% endif %}
-    {% endwith %}
-
-    <form method="POST" action="{{ url_for('login') }}">
-        <div>
-            <label for="email">Correo electrónico:</label>
-            <input type="email" id="email" name="email" required>
-        </div>
-        <div>
-            <label for="password">Contraseña:</label>
-            <input type="password" id="password" name="password" required>
-        </div>
-        <button type="submit">Iniciar Sesión</button>
-    </form>
-
-    <p>¿No tienes una cuenta? <a href="{{ url_for('registro') }}">Regístrate aquí</a></p>
 </body>
 
 </html>
