@@ -1,0 +1,26 @@
+/*
+    Este archivo contiene estilos personalizados para tu tienda de papelería.
+    Se carga en la plantilla base.html para ser usado en todas las páginas.
+*/
+
+/*
+    Añade un fondo con un patrón de cuadrícula sutil al cuerpo de la página.
+    Esto le da una apariencia limpia y organizada, ideal para una papelería.
+*/
+body {
+    background-color: #f3f4f6;
+    /* Un gris claro como base */
+    background-image:
+        linear-gradient(90deg, #e5e7eb 1px, transparent 1px),
+        linear-gradient(#e5e7eb 1px, transparent 1px);
+    background-size: 20px 20px;
+    background-position: center center;
+}
+
+/*
+    Ajusta el margen superior para que el contenido principal no quede
+    pegado a la barra de navegación.
+*/
+main {
+    margin-top: 2rem;
+}

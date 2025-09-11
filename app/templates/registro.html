@@ -1,54 +1,73 @@
-<!DOCTYPE html>
-<html lang="es">
+{% extends "base.html" %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ titulo }} - Mi Papelería Online</title>
-</head>
+{% block content %}
+<div class="flex items-center justify-center min-h-screen">
+    <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-lg">
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">Crear una nueva cuenta</h1>
 
-<body>
-    <h1>Crear una nueva cuenta</h1>
+        <!-- Mensajes Flash -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="mb-4">
+            {% for category, message in messages %}
+            <div class="rounded-lg p-4 mb-2
+                        {% if category == 'success' %} bg-green-100 text-green-700 {% endif %}
+                        {% if category == 'danger' %} bg-red-100 text-red-700 {% endif %}
+                        {% if category == 'info' %} bg-blue-100 text-blue-700 {% endif %}
+                        " role="alert">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
 
-    {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-    {% for category, message in messages %}
-    <div class="alert alert-{{ category }}">
-        {{ message }}
+        <!-- Formulario de Registro -->
+        <form method="POST" action="{{ url_for('registro') }}" class="space-y-6">
+            <div>
+                <label for="nombre" class="block text-sm font-medium text-gray-700">Nombre completo:</label>
+                <input type="text" id="nombre" name="nombre" required
+                    class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-300 ease-in-out">
+            </div>
+            <div>
+                <label for="email" class="block text-sm font-medium text-gray-700">Correo electrónico:</label>
+                <input type="email" id="email" name="email" required
+                    class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-300 ease-in-out">
+            </div>
+            <div>
+                <label for="password" class="block text-sm font-medium text-gray-700">Contraseña:</label>
+                <input type="password" id="password" name="password" required
+                    class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-300 ease-in-out">
+            </div>
+            <div>
+                <label for="telefono" class="block text-sm font-medium text-gray-700">Teléfono (opcional):</label>
+                <input type="tel" id="telefono" name="telefono"
+                    class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-300 ease-in-out">
+            </div>
+            <div>
+                <label for="direccion_envio" class="block text-sm font-medium text-gray-700">Dirección de envío
+                    (opcional):</label>
+                <textarea id="direccion_envio" name="direccion_envio" rows="3"
+                    class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-300 ease-in-out"></textarea>
+            </div>
+            <div>
+                <label for="direccion_facturacion" class="block text-sm font-medium text-gray-700">Dirección de
+                    facturación (opcional):</label>
+                <textarea id="direccion_facturacion" name="direccion_facturacion" rows="3"
+                    class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-300 ease-in-out"></textarea>
+            </div>
+            <button type="submit"
+                class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-lg font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-300 ease-in-out">
+                Registrarse
+            </button>
+        </form>
+
+        <p class="mt-6 text-center text-sm text-gray-600">
+            ¿Ya tienes una cuenta?
+            <a href="{{ url_for('login') }}" class="font-medium text-blue-600 hover:text-blue-500">
+                Inicia sesión aquí
+            </a>
+        </p>
     </div>
-    {% endfor %}
-    {% endif %}
-    {% endwith %}
-
-    <form method="POST" action="{{ url_for('registro') }}">
-        <div>
-            <label for="nombre">Nombre completo:</label>
-            <input type="text" id="nombre" name="nombre" required>
-        </div>
-        <div>
-            <label for="email">Correo electrónico:</label>
-            <input type="email" id="email" name="email" required>
-        </div>
-        <div>
-            <label for="password">Contraseña:</label>
-            <input type="password" id="password" name="password" required>
-        </div>
-        <div>
-            <label for="telefono">Teléfono:</label>
-            <input type="tel" id="telefono" name="telefono">
-        </div>
-        <div>
-            <label for="direccion_envio">Dirección de envío:</label>
-            <textarea id="direccion_envio" name="direccion_envio" rows="3"></textarea>
-        </div>
-        <div>
-            <label for="direccion_facturacion">Dirección de facturación:</label>
-            <textarea id="direccion_facturacion" name="direccion_facturacion" rows="3"></textarea>
-        </div>
-        <button type="submit">Registrarse</button>
-    </form>
-
-    <p>¿Ya tienes una cuenta? <a href="{{ url_for('login') }}">Inicia sesión aquí</a></p>
-</body>
-
-</html>
+</div>
+{% endblock content %}

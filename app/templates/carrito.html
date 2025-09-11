@@ -4,28 +4,117 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ titulo }}</title>
+    <title>{{ titulo }} - Mi Papelería Online</title>
+    <!-- Incluye Tailwind CSS desde CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+    </style>
 </head>
 
-<body>
-    <h1>Tu Carrito de Compras</h1>
+<body class="bg-gray-100 flex flex-col items-center min-h-screen pt-12">
 
-    {% if detalles %}
-    <ul>
-        {% for detalle in detalles %}
-        <li>
-            {{ detalle.producto.nombre }} -
-            Cantidad: {{ detalle.cantidad }} -
-            Precio: ${{ '%.2f'|format(detalle.producto.precio_venta * detalle.cantidad) }}
-        </li>
-        {% endfor %}
-    </ul>
-    <h3>Total: ${{ '%.2f'|format(total) }}</h3>
-    {% else %}
-    <p>Tu carrito de compras está vacío.</p>
-    {% endif %}
+    <nav class="bg-white shadow-lg fixed top-0 w-full z-50">
+        <div class="container mx-auto px-6 py-3 flex justify-between items-center">
+            <a href="{{ url_for('inicio') }}" class="text-xl font-bold text-gray-800">
+                Mi Papelería Online
+            </a>
+            <div class="space-x-4">
+                <a href="{{ url_for('inicio') }}"
+                    class="text-gray-700 hover:text-gray-900 transition duration-300">Inicio</a>
+                {% if current_user.is_authenticated %}
+                <a href="{{ url_for('perfil') }}"
+                    class="text-gray-700 hover:text-gray-900 transition duration-300">Perfil</a>
+                <a href="{{ url_for('carrito') }}"
+                    class="text-gray-700 hover:text-gray-900 transition duration-300">Carrito de Compras</a>
+                <a href="{{ url_for('logout') }}"
+                    class="text-gray-700 hover:text-gray-900 transition duration-300">Cerrar Sesión</a>
+                {% else %}
+                <a href="{{ url_for('login') }}"
+                    class="text-gray-700 hover:text-gray-900 transition duration-300">Iniciar Sesión</a>
+                <a href="{{ url_for('registro') }}"
+                    class="text-gray-700 hover:text-gray-900 transition duration-300">Registrarse</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
 
-    <p><a href="{{ url_for('inicio') }}">Continuar comprando</a></p>
+    <div class="container mx-auto mt-24 px-6">
+        <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-2xl">
+            <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">Tu Carrito de Compras</h1>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            <div class="mb-4">
+                {% for category, message in messages %}
+                <div class="p-4 rounded-lg text-sm mb-2 {{ 'bg-green-100 text-green-700' if category == 'success' else 'bg-red-100 text-red-700' }}"
+                    role="alert">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% endwith %}
+
+            {% if detalles %}
+            <div class="space-y-4">
+                {% for detalle in detalles %}
+                <div class="flex items-center justify-between border-b pb-4">
+                    <div class="flex-grow">
+                        <h3 class="font-bold text-lg">{{ detalle.producto.nombre }}</h3>
+                        <p class="text-sm text-gray-600">
+                            Precio por unidad: ${{ '%.2f'|format(detalle.producto.precio_venta) }}
+                        </p>
+                        <p class="text-sm text-gray-600">
+                            Subtotal: ${{ '%.2f'|format(detalle.producto.precio_venta * detalle.cantidad) }}
+                        </p>
+                    </div>
+                    <form action="{{ url_for('actualizar_cantidad_carrito', producto_id=detalle.producto.id) }}"
+                        method="POST" class="flex items-center space-x-2">
+                        <input type="number" name="cantidad" value="{{ detalle.cantidad }}" min="1"
+                            max="{{ detalle.producto.stock }}" class="w-16 text-center border rounded-md px-2 py-1">
+                        <button type="submit"
+                            class="bg-blue-500 text-white rounded-md px-3 py-1 text-sm hover:bg-blue-600 transition duration-300">
+                            Actualizar
+                        </button>
+                    </form>
+                    <a href="{{ url_for('eliminar_del_carrito', producto_id=detalle.producto.id) }}"
+                        class="ml-4 bg-red-500 text-white rounded-md px-3 py-1 text-sm hover:bg-red-600 transition duration-300">
+                        Eliminar
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="mt-8 text-right font-bold text-2xl text-gray-800">
+                <h3>Total: ${{ '%.2f'|format(total) }}</h3>
+            </div>
+
+            <div class="flex justify-between mt-8">
+                <a href="{{ url_for('inicio') }}"
+                    class="text-blue-500 hover:text-blue-700 font-medium transition duration-300">
+                    &larr; Continuar comprando
+                </a>
+                <button
+                    class="bg-green-500 text-white rounded-md px-6 py-3 font-bold hover:bg-green-600 transition duration-300">
+                    Proceder al pago
+                </button>
+            </div>
+
+            {% else %}
+            <p class="text-center text-gray-500">Tu carrito de compras está vacío.</p>
+            <div class="text-center mt-6">
+                <a href="{{ url_for('inicio') }}"
+                    class="text-blue-500 hover:text-blue-700 font-medium transition duration-300">
+                    &larr; Continuar comprando
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
 </body>
 
 </html>

@@ -1,69 +1,86 @@
-<!DOCTYPE html>
-<html lang="es">
+{% extends "base.html" %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ titulo }} - Tienda de Papelería</title>
-</head>
+{% block content %}
+<div class="text-center mb-8">
+    <h1 class="text-4xl font-extrabold text-gray-900 leading-tight">¡Bienvenido a tu tienda de papelería!</h1>
+    <p class="mt-2 text-lg text-gray-600">Explora nuestros productos y encuentra todo lo que necesitas.</p>
+</div>
 
-<body>
-
-    <nav>
-        <ul>
-            <li><a href="{{ url_for('inicio') }}">Inicio</a></li>
-            {% if current_user.is_authenticated %}
-            <li><a href="{{ url_for('perfil') }}">Perfil</a></li>
-            <li><a href="{{ url_for('carrito') }}">Carrito de Compras</a></li>
-            <li><a href="{{ url_for('logout') }}">Cerrar Sesión</a></li>
-            {% else %}
-            <li><a href="{{ url_for('login') }}">Iniciar Sesión</a></li>
-            <li><a href="{{ url_for('registro') }}">Registrarse</a></li>
-            {% endif %}
-        </ul>
-    </nav>
-
-    {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-    {% for category, message in messages %}
-    <div class="alert alert-{{ category }}">
-        {{ message }}
+<!-- Sección de Misión, Visión y Valores -->
+<div class="my-12 px-4 py-8 bg-white rounded-xl shadow-lg">
+    <h2 class="text-3xl font-bold text-center text-gray-800 mb-8">Nuestra Historia y Compromiso</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+        <!-- Misión -->
+        <div class="flex flex-col items-center">
+            <h3 class="text-2xl font-semibold text-blue-600 mb-2">Misión</h3>
+            <p class="text-gray-700">Ser la tienda de papelería de referencia, ofreciendo productos de alta calidad
+                que inspiren la creatividad, fomenten la productividad y enriquezcan la vida de nuestros clientes,
+                estudiantes y profesionales.</p>
+        </div>
+        <!-- Visión -->
+        <div class="flex flex-col items-center">
+            <h3 class="text-2xl font-semibold text-green-600 mb-2">Visión</h3>
+            <p class="text-gray-700">Convertirnos en líderes del mercado de papelería a nivel nacional, siendo
+                reconocidos por nuestra innovación, compromiso con la sostenibilidad y por crear una comunidad
+                apasionada por la escritura y el arte.</p>
+        </div>
+        <!-- Valores -->
+        <div class="flex flex-col items-center">
+            <h3 class="text-2xl font-semibold text-purple-600 mb-2">Valores</h3>
+            <ul class="text-gray-700 text-left space-y-2">
+                <li><strong class="font-bold">Calidad:</strong> Ofrecemos solo lo mejor para nuestros clientes.</li>
+                <li><strong class="font-bold">Creatividad:</strong> Inspiramos el pensamiento original.</li>
+                <li><strong class="font-bold">Sostenibilidad:</strong> Nos comprometemos con prácticas ecológicas.
+                </li>
+                <li><strong class="font-bold">Comunidad:</strong> Fomentamos un espacio de apoyo mutuo.</li>
+            </ul>
+        </div>
     </div>
-    {% endfor %}
-    {% endif %}
-    {% endwith %}
+</div>
 
-    <h1>¡Bienvenido a tu tienda de papelería!</h1>
+<hr class="my-6 border-gray-300">
 
-    <hr>
+<h2 class="text-2xl font-bold text-gray-800 mb-6">Productos Disponibles</h2>
 
-    <h2>Productos Disponibles</h2>
-
-    <div class="lista-productos">
-        {% if productos %}
-        {% for producto in productos %}
-        <div class="tarjeta-producto" style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;">
-            <h3>{{ producto.nombre }}</h3>
-            <p><strong>Descripción:</strong> {{ producto.descripcion }}</p>
-            <p><strong>Precio:</strong> ${{ '%.2f'|format(producto.precio_venta) }}</p>
-            <p><strong>Stock:</strong> {{ producto.stock }} unidades</p>
+<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+    {% if productos %}
+    {% for producto in productos %}
+    <div
+        class="bg-white rounded-xl shadow-lg overflow-hidden transition-transform transform hover:scale-105 duration-300">
+        <div class="p-6">
+            <h3 class="text-xl font-semibold text-gray-800 mb-2">{{ producto.nombre }}</h3>
+            <p class="text-gray-600 text-sm mb-4">{{ producto.descripcion }}</p>
+            <p class="text-lg font-bold text-gray-900 mb-2">${{ '%.2f'|format(producto.precio_venta) }}</p>
+            <p class="text-xs text-gray-500 mb-4">Stock: {{ producto.stock }} unidades</p>
 
             {% if current_user.is_authenticated %}
-            <form action="{{ url_for('anadir_al_carrito', producto_id=producto.id) }}" method="POST">
-                <label for="cantidad-{{ producto.id }}">Cantidad:</label>
+            <form action="{{ url_for('anadir_al_carrito', producto_id=producto.id) }}" method="POST"
+                class="flex flex-col space-y-4">
+                <label for="cantidad-{{ producto.id }}" class="text-sm font-medium text-gray-700">Cantidad:</label>
                 <input type="number" id="cantidad-{{ producto.id }}" name="cantidad" value="1" min="1"
-                    max="{{ producto.stock }}">
-                <button type="submit">Añadir al Carrito</button>
+                    max="{{ producto.stock }}"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <button type="submit"
+                    class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md shadow transition duration-300">
+                    Añadir al Carrito
+                </button>
             </form>
             {% else %}
-            <p><a href="{{ url_for('login') }}">Inicia sesión para comprar</a></p>
+            <div class="text-center mt-4">
+                <a href="{{ url_for('login') }}"
+                    class="text-blue-600 hover:text-blue-500 font-medium transition duration-300">Inicia sesión para
+                    comprar</a>
+            </div>
             {% endif %}
         </div>
-        {% endfor %}
-        {% else %}
-        <p>No hay productos disponibles en este momento.</p>
-        {% endif %}
     </div>
+    {% endfor %}
+    {% else %}
+    <p class="col-span-full text-center text-gray-500">No hay productos disponibles en este momento.</p>
+    {% endif %}
+</div>
+{% endblock content %}
+
 
 </body>
 

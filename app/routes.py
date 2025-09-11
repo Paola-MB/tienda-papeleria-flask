@@ -5,6 +5,7 @@ from flask_login import login_user, current_user, logout_user, login_required
 from sqlalchemy.exc import IntegrityError
 from flask_mail import Message, Mail
 from itsdangerous import URLSafeTimedSerializer
+from decimal import Decimal # Importa la clase Decimal para manejar la precisión monetaria
 import os
 
 
@@ -143,22 +144,26 @@ def email_fallido():
 def perfil():
     return render_template('perfil.html', titulo='Perfil de Usuario')
 
-
+# Ruta para mostrar el carrito de compras
 @app.route("/carrito")
 @login_required
 def carrito():
-    # Obtener el carrito del usuario actual
+    # Busca el carrito de compras del usuario actual
     carrito_usuario = CarritoCompras.query.filter_by(id_usuario=current_user.id).first()
+
     detalles_carrito = []
-    total_carrito = 0
+    # Inicializa total_carrito como un Decimal para evitar errores de tipo
+    total_carrito = Decimal(0)
 
     if carrito_usuario:
+        # Obtiene los detalles de los productos en el carrito
         detalles_carrito = DetalleCarrito.query.filter_by(id_carrito=carrito_usuario.id).all()
         for detalle in detalles_carrito:
             total_carrito += detalle.producto.precio_venta * detalle.cantidad
     
     return render_template('carrito.html', titulo='Tu Carrito de Compras', detalles=detalles_carrito, total=total_carrito)
 
+# ---
 
 # Ruta para añadir un producto al carrito
 @app.route("/anadir_al_carrito/<int:producto_id>", methods=['POST'])
@@ -188,7 +193,63 @@ def anadir_al_carrito(producto_id):
             cantidad=cantidad
         )
         db.session.add(nuevo_detalle)
-    
+
     db.session.commit()
-    flash(f'{cantidad} x {producto.nombre} añadido a tu carrito.', 'success')
+    flash('Producto añadido al carrito con éxito.', 'success')
+    return redirect(url_for('carrito'))
+
+# ---
+
+# Ruta para actualizar la cantidad de un producto en el carrito
+@app.route("/actualizar_cantidad_carrito/<int:producto_id>", methods=['POST'])
+@login_required
+def actualizar_cantidad_carrito(producto_id):
+    try:
+        nueva_cantidad = int(request.form.get('cantidad'))
+        
+        # Validar que la cantidad sea un número positivo
+        if nueva_cantidad <= 0:
+            flash('La cantidad debe ser un número positivo. Para eliminar un producto, usa el botón "Eliminar".', 'danger')
+            return redirect(url_for('carrito'))
+
+        # Buscar el carrito del usuario actual
+        carrito_usuario = CarritoCompras.query.filter_by(id_usuario=current_user.id).first()
+        if not carrito_usuario:
+            flash('No tienes un carrito de compras para actualizar.', 'danger')
+            return redirect(url_for('carrito'))
+
+        # Buscar el detalle del carrito para el producto específico
+        detalle_a_actualizar = DetalleCarrito.query.filter_by(id_carrito=carrito_usuario.id, id_producto=producto_id).first()
+
+        if detalle_a_actualizar:
+            # Si el producto se encuentra, actualiza la cantidad
+            detalle_a_actualizar.cantidad = nueva_cantidad
+            db.session.commit()
+            flash('Cantidad actualizada con éxito.', 'success')
+        else:
+            flash('El producto no se encontró en tu carrito.', 'danger')
+
+    except (ValueError, TypeError):
+        flash('Cantidad no válida. Por favor, introduce un número entero.', 'danger')
+
+    return redirect(url_for('carrito'))
+
+# ---
+
+# Ruta para eliminar un producto del carrito
+@app.route("/eliminar_del_carrito/<int:producto_id>")
+@login_required
+def eliminar_del_carrito(producto_id):
+    carrito_usuario = CarritoCompras.query.filter_by(id_usuario=current_user.id).first()
+    if carrito_usuario:
+        detalle_a_eliminar = DetalleCarrito.query.filter_by(id_carrito=carrito_usuario.id, id_producto=producto_id).first()
+        if detalle_a_eliminar:
+            db.session.delete(detalle_a_eliminar)
+            db.session.commit()
+            flash('Producto eliminado del carrito.', 'success')
+        else:
+            flash('El producto no se encontró en tu carrito.', 'danger')
+    else:
+        flash('No tienes un carrito de compras para eliminar productos.', 'danger')
+
     return redirect(url_for('carrito'))
