@@ -1,11 +1,12 @@
 from flask import render_template, url_for, flash, redirect, request
-from app import app, db, bcrypt
+from app import app, db, bcrypt, mail
 from app.models import Usuario, Producto, CarritoCompras, DetalleCarrito
 from flask_login import login_user, current_user, logout_user, login_required
 from sqlalchemy.exc import IntegrityError
 from flask_mail import Message, Mail
-from itsdangerous import URLSafeTimedSerializer
+from itsdangerous import URLSafeTimedSerializer, SignatureExpired
 from decimal import Decimal # Importa la clase Decimal para manejar la precisión monetaria
+from datetime import datetime
 import os
 
 
@@ -14,7 +15,19 @@ import os
 s = URLSafeTimedSerializer(app.config['SECRET_KEY'])
 mail = Mail(app)
 
-# -- Rutas existentes --
+# Función para enviar el correo de recuperación
+def enviar_email_recuperacion(usuario):
+    token = s.dumps(usuario.email, salt='recuperacion-sal')
+    link = url_for('restablecer_contrasena', token=token, _external=True)
+    
+    msg = Message(
+        subject="Restablecer tu contraseña",
+        sender=app.config['MAIL_USERNAME'],
+        recipients=[usuario.email]
+    )
+    msg.body = f"Para restablecer tu contraseña, haz clic en el siguiente enlace: {link}\n\nSi no solicitaste esto, simplemente ignora este correo."
+    msg.html = render_template('email_recuperacion.html', link=link)
+    mail.send(msg)
 
 # La página de inicio, visible para todos los usuarios
 @app.route("/")
@@ -79,7 +92,7 @@ def registro():
 
 
 # Ruta para iniciar sesión
-@app.route("/login", methods=['GET', 'POST'])
+@app.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
         return redirect(url_for('inicio'))
@@ -87,17 +100,18 @@ def login():
     if request.method == 'POST':
         email = request.form.get('email')
         password = request.form.get('password')
+        
         usuario = Usuario.query.filter_by(email=email).first()
-
+        
         if usuario and bcrypt.check_password_hash(usuario.password_hash, password):
-            login_user(usuario, remember=True)
-            flash(f'¡Bienvenido de nuevo, {usuario.nombre}!', 'success')
-            return redirect(url_for('inicio'))
+            login_user(usuario)
+            next_page = request.args.get('next')
+            flash(f'Inicio de sesión exitoso. ¡Bienvenido, {usuario.nombre}!', 'success')
+            return redirect(next_page) if next_page else redirect(url_for('inicio'))
         else:
-            flash('Inicio de sesión fallido. Por favor, verifica tu correo electrónico y contraseña.', 'danger')
-    
+            flash('Correo electrónico o contraseña incorrectos.', 'danger')
+            
     return render_template('login.html', titulo='Iniciar Sesión')
-
 # Ruta para cerrar sesión
 @app.route("/logout")
 @login_required
@@ -107,6 +121,76 @@ def logout():
     return redirect(url_for('inicio'))
 
 # -- Nuevas rutas para la confirmación de correo --
+
+
+
+# Nueva ruta para solicitar la recuperación
+@app.route('/solicitar-recuperacion', methods=['GET', 'POST'])
+def solicitar_recuperacion():
+    if current_user.is_authenticated:
+        return redirect(url_for('inicio'))
+    
+    if request.method == 'POST':
+        email = request.form.get('email')
+        usuario = Usuario.query.filter_by(email=email).first()
+        
+        if usuario:
+            enviar_email_recuperacion(usuario)
+            flash('Se ha enviado un correo electrónico con instrucciones para restablecer tu contraseña. Revisa tu bandeja de entrada.', 'info')
+        else:
+            flash('Si el correo existe en nuestra base de datos, recibirás un enlace de recuperación.', 'info')
+        
+        return redirect(url_for('login'))
+        
+    return render_template('recuperar_contrasena.html', titulo='Recuperar Contraseña')
+
+# Nueva ruta para restablecer la contraseña
+@app.route('/restablecer-contrasena/<token>', methods=['GET', 'POST'])
+def restablecer_contrasena(token):
+    try:
+        email = s.loads(token, salt='recuperacion-sal', max_age=1800) # El token expira en 30 minutos
+    except SignatureExpired:
+        flash('El enlace de recuperación ha expirado. Por favor, solicita uno nuevo.', 'danger')
+        return redirect(url_for('solicitar_recuperacion'))
+    except:
+        flash('El enlace de recuperación es inválido.', 'danger')
+        return redirect(url_for('solicitar_recuperacion'))
+        
+    usuario = Usuario.query.filter_by(email=email).first()
+    if not usuario:
+        flash('El usuario no fue encontrado.', 'danger')
+        return redirect(url_for('solicitar_recuperacion'))
+
+    if request.method == 'POST':
+        password = request.form.get('password')
+        password2 = request.form.get('password2')
+        if password != password2:
+            flash('Las contraseñas no coinciden.', 'danger')
+            return redirect(url_for('restablecer_contrasena', token=token))
+        
+        usuario.password_hash = bcrypt.generate_password_hash(password).decode('utf-8')
+        db.session.commit()
+        
+        flash('Tu contraseña ha sido restablecida exitosamente. Ahora puedes iniciar sesión.', 'success')
+        return redirect(url_for('login'))
+        
+    return render_template('restablecer_contrasena.html', titulo='Restablecer Contraseña')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 @app.route('/confirmar/<token>')
 def confirmar_email(token):

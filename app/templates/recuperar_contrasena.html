@@ -3,7 +3,9 @@
 {% block content %}
 <div class="bg-gray-100 flex items-center justify-center min-h-screen">
     <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-md">
-        <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">Iniciar Sesión</h1>
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">Recuperar Contraseña</h1>
+        <p class="text-center text-gray-600 mb-6">Introduce el correo electrónico de tu cuenta y te enviaremos un enlace
+            para restablecer tu contraseña.</p>
 
         {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
@@ -18,30 +20,21 @@
         {% endif %}
         {% endwith %}
 
-        <form method="POST" action="{{ url_for('login') }}" class="space-y-6">
+        <form method="POST" action="{{ url_for('solicitar_recuperacion') }}" class="space-y-6">
             <div>
                 <label for="email" class="block text-sm font-medium text-gray-700">Correo electrónico:</label>
                 <input type="email" id="email" name="email" required
                     class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-300 ease-in-out">
             </div>
-            <div>
-                <label for="password" class="block text-sm font-medium text-gray-700">Contraseña:</label>
-                <input type="password" id="password" name="password" required
-                    class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-300 ease-in-out">
-            </div>
             <button type="submit"
                 class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-lg font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-300 ease-in-out">
-                Iniciar Sesión
+                Enviar Enlace de Recuperación
             </button>
         </form>
 
         <p class="mt-4 text-center text-gray-600">
-            ¿No tienes una cuenta? <a href="{{ url_for('registro') }}"
-                class="text-blue-600 hover:text-blue-500 font-medium">Regístrate aquí</a>
-        </p>
-        <p class="mt-2 text-center text-gray-600">
-            <a href="{{ url_for('solicitar_recuperacion') }}"
-                class="text-blue-600 hover:text-blue-500 font-medium">¿Olvidaste tu contraseña?</a>
+            <a href="{{ url_for('login') }}" class="text-blue-600 hover:text-blue-500 font-medium">Volver al inicio de
+                sesión</a>
         </p>
     </div>
 </div>

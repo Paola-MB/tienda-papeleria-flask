@@ -6,7 +6,7 @@ from flask_admin import Admin, AdminIndexView
 from flask_admin.contrib.sqla import ModelView
 from config import Config
 from flask_mail import Mail # Importa Flask-Mail
-
+from itsdangerous import URLSafeTimedSerializer, SignatureExpired # Nueva importación
 
 # Inicialización de la aplicación Flask y sus extensiones
 app = Flask(__name__)
@@ -71,3 +71,5 @@ admin.add_view(MyModelView(CarritoCompras, db.session, name='Carritos de Compras
 admin.add_view(MyModelView(DetalleCarrito, db.session, name='Detalles de Carrito'))
 admin.add_view(MyModelView(Resena, db.session, name='Reseñas'))
 admin.add_view(MyModelView(Descuento, db.session, name='Descuentos'))
+
+from app import routes
